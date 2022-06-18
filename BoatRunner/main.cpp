@@ -16,6 +16,9 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 };
 
+float pos = 6.0f;
+float rock_pos = 0.0f;
+
 
 // MAIN ! 
 class MyProject : public BaseProject {
@@ -63,6 +66,7 @@ protected:
 
 	// Here you load and setup all your Vulkan objects
 	void localInit() {
+
 		// Descriptor Layouts [what will be passed to the shaders]
 		DSLobj.init(this, {
 			// this array contains the binding:
@@ -221,22 +225,39 @@ protected:
 
 		// Here is where you actually update your uniforms
 		// For rock 1
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, -7.0f));
+		if (rock_pos < 5.0f) {
+			rock_pos += 0.0015f;
+		}
+		else {
+			rock_pos = 0.0f;
+		}
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f + rock_pos * 4.0f, 0.0f, -14.0f + rock_pos * 4.0f));
 		vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage]);
-	
+
 		// For rock 2
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-25.0f, 0.0f, -15.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f + rock_pos*4.0f, 0.0f, -5.0f + rock_pos*4.0f));
 		vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage]);
 	
 		// For the boat
-		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(6.0f, 0.0f, 6.0f)), 
-			glm::vec3(0.009f,0.009f, 0.009f));
+
+		if (glfwGetKey(window, GLFW_KEY_A)) {
+			if (pos > 0.0f) {
+				pos -= 0.02f;
+			}
+		}
+		if (glfwGetKey(window, GLFW_KEY_D)) {
+			if (pos < 11.0f ) {
+				pos += 0.02f;
+			}
+		}
+		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f, 10.0f -pos)),
+			glm::vec3(0.009f, 0.009f, 0.009f));
 		ubo.model = glm::rotate(ubo.model, glm::radians(-45.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		vkMapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage], 0,
