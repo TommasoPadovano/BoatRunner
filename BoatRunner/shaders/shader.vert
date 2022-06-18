@@ -11,6 +11,7 @@ layout(location = 2) in vec2 texCoord;
 layout(location = 0) out vec3 fragViewDir;
 layout(location = 1) out vec3 fragNorm;
 layout(location = 2) out vec2 fragTexCoord;void main() {
+	vec3 pos2 = vec3(0.001f,0.001f,0.001f);
 	gl_Position = ubo.proj * ubo.view * ubo.model * vec4(pos, 1.0);
 	fragViewDir  = (ubo.view[3]).xyz - (ubo.model * vec4(pos,  1.0)).xyz;
 	fragNorm     = (ubo.model * vec4(norm, 0.0)).xyz;
