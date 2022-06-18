@@ -206,7 +206,7 @@ protected:
 
 		void* data;
 
-		gubo.view = glm::lookAt(glm::vec3(23.0f, 23.0f, 23.0f),
+		gubo.view = glm::lookAt(glm::vec3(17.0f, 17.0f, 17.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		gubo.proj = glm::perspective(glm::radians(45.0f),
@@ -221,22 +221,24 @@ protected:
 
 		// Here is where you actually update your uniforms
 		// For rock 1
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-3.0f, -3.0f, 0.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.0f, -7.0f));
 		vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage]);
 	
 		// For rock 2
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-10.0f,-10.0f,-10.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-25.0f, 0.0f, -15.0f));
 		vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage]);
 	
 		// For the boat
-		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)), 
-			glm::vec3(0.025f,0.025f, 0.025f));
+		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(6.0f, 0.0f, 6.0f)), 
+			glm::vec3(0.009f,0.009f, 0.009f));
+		ubo.model = glm::rotate(ubo.model, glm::radians(-45.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
 		vkMapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
