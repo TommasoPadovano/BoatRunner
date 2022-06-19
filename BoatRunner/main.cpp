@@ -16,10 +16,11 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 };
 
-float pos = 6.0f;
+float pos = 0.0f;
 float rock_pos = 0.0f;
 float rock_pos2 = 0.0f;
-float random_pos = -15.0f;
+float random_pos = 0.0f;
+float random_pos2 = -6.0f;
 
 
 // MAIN ! 
@@ -212,7 +213,7 @@ protected:
 
 		void* data;
 
-		gubo.view = glm::lookAt(glm::vec3(17.0f, 17.0f, 17.0f),
+		gubo.view = glm::lookAt(glm::vec3(0.0f, 25.0f, -25.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		gubo.proj = glm::perspective(glm::radians(45.0f),
@@ -227,28 +228,30 @@ protected:
 
 		// Here is where you actually update your uniforms
 		// For rock 1
-		if (rock_pos < 5.0f) {
-			rock_pos += 0.0015f;
+		if (20.0f + rock_pos * 4.0f > -20.0f) {
+			rock_pos -= 0.0015f;
 		}
 		else {
 			rock_pos = 0.0f;
+			srand(time(NULL));
+			random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
 		}
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-16.0f + rock_pos * 4.0f, 0.0f, -14.0f + rock_pos * 4.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2 , 0.0f, 25.0f + rock_pos * 4.0f));
 		vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage]);
 
 		// For rock 2
-		if (rock_pos2 < 5.0f) {
-			rock_pos2 += 0.0015f;
+		if (15.0f + rock_pos2 * 4.0f > -20.0f) {
+			rock_pos2 -= 0.0015f;
 		}
 		else {
 			rock_pos2 = 0.0f; // make the rock restart from the beginning
 			srand(time(NULL));
-			random_pos = - rand()%10; //change the position
+			random_pos = 10.0f - (rand()%10)*2; //change the position
 		}
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos + rock_pos2*4.0f, 0.0f, -10.0f + (random_pos/2) + rock_pos2*4.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, 0.0f, 15.0f + rock_pos2*4.0f));
 		vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
@@ -256,19 +259,19 @@ protected:
 	
 		// For the boat
 
-		if (glfwGetKey(window, GLFW_KEY_A)) {
-			if (pos > 0.0f) {
+		if (glfwGetKey(window, GLFW_KEY_D)) {
+			if (pos > -10.0f) {
 				pos -= 0.02f;
 			}
 		}
-		if (glfwGetKey(window, GLFW_KEY_D)) {
-			if (pos < 11.0f ) {
+		if (glfwGetKey(window, GLFW_KEY_A)) {
+			if (pos < 10.0f ) {
 				pos += 0.02f;
 			}
 		}
-		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f, 10.0f -pos)),
+		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f, -8.0f)),
 			glm::vec3(0.009f, 0.009f, 0.009f));
-		ubo.model = glm::rotate(ubo.model, glm::radians(-45.0f),
+		ubo.model = glm::rotate(ubo.model, glm::radians(90.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		vkMapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
