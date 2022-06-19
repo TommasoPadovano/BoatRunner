@@ -1,5 +1,5 @@
 // This has been adapted from the Vulkan tutorial
-
+#include<ctime>
 #include "MyProject.hpp"
 
 // The global ubo contains view and proj matrices which don't change between objects
@@ -18,6 +18,8 @@ struct UniformBufferObject {
 
 float pos = 6.0f;
 float rock_pos = 0.0f;
+float rock_pos2 = 0.0f;
+float random_pos = -15.0f;
 
 
 // MAIN ! 
@@ -199,10 +201,10 @@ protected:
 	// Here is where you update the uniforms.
 	// Very likely this will be where you will be writing the logic of your application.
 	void updateUniformBuffer(uint32_t currentImage) {
-		static auto startTime = std::chrono::high_resolution_clock::now();
+		/*static auto startTime = std::chrono::high_resolution_clock::now();
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>
-			(currentTime - startTime).count();
+			(currentTime - startTime).count();*/
 
 
 		globalUniformBufferObject gubo{};
@@ -231,14 +233,22 @@ protected:
 		else {
 			rock_pos = 0.0f;
 		}
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f + rock_pos * 4.0f, 0.0f, -14.0f + rock_pos * 4.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-16.0f + rock_pos * 4.0f, 0.0f, -14.0f + rock_pos * 4.0f));
 		vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage]);
 
 		// For rock 2
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f + rock_pos*4.0f, 0.0f, -5.0f + rock_pos*4.0f));
+		if (rock_pos2 < 5.0f) {
+			rock_pos2 += 0.0015f;
+		}
+		else {
+			rock_pos2 = 0.0f; // make the rock restart from the beginning
+			srand(time(NULL));
+			random_pos = - rand()%10; //change the position
+		}
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos + rock_pos2*4.0f, 0.0f, -10.0f + (random_pos/2) + rock_pos2*4.0f));
 		vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
