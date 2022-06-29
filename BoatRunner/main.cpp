@@ -19,8 +19,15 @@ struct UniformBufferObject {
 float pos = 0.0f;
 float rock_pos = 0.0f;
 float rock_pos2 = 0.0f;
+float sea_pos = 5.0f;
 float random_pos = 0.0f;
 float random_pos2 = -6.0f;
+
+float speeder = 0.0f;
+float speederLimit = 0.006f;
+
+float time_elapsed = 0.0f;
+float vel = 1.0f;
 
 
 // MAIN ! 
@@ -51,6 +58,10 @@ protected:
 	Texture T_Boat;
 	DescriptorSet DS_Boat;
 
+	Model M_Sea;
+	Texture T_Sea;
+	DescriptorSet DS_Sea;
+
 	DescriptorSet DS_global;
 
 	// Here you set the main application parameters
@@ -62,9 +73,9 @@ protected:
 		initialBackgroundColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		// Descriptor pool sizes
-		uniformBlocksInPool = 4;
-		texturesInPool = 3;
-		setsInPool = 4;
+		uniformBlocksInPool = 5;
+		texturesInPool = 4;
+		setsInPool = 5;
 	}
 
 	// Here you load and setup all your Vulkan objects
@@ -117,6 +128,13 @@ protected:
 						{1, TEXTURE, 0, &T_Boat}
 			});
 
+		M_Sea.init(this, "models/LargePlane.obj");
+		T_Sea.init(this, "textures/sea.jpeg");
+		DS_Sea.init(this, &DSLobj, {
+						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+						{1, TEXTURE, 0, &T_Sea}
+			});
+
 		DS_global.init(this, &DSLglobal, {
 						{0, UNIFORM, sizeof(globalUniformBufferObject), nullptr}
 			});
@@ -135,6 +153,10 @@ protected:
 		DS_Boat.cleanup();
 		T_Boat.cleanup();
 		M_Boat.cleanup();
+
+		DS_Sea.cleanup();
+		T_Sea.cleanup();
+		M_Sea.cleanup();
 
 		DS_global.cleanup();
 
@@ -197,6 +219,18 @@ protected:
 			0, nullptr);
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Boat.indices.size()), 1, 0, 0, 0);
+
+		VkBuffer vertexBuffers4[] = { M_Sea.vertexBuffer };
+		VkDeviceSize offsets4[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers4, offsets4);
+		vkCmdBindIndexBuffer(commandBuffer, M_Sea.indexBuffer, 0,
+			VK_INDEX_TYPE_UINT32);
+		vkCmdBindDescriptorSets(commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			P1.pipelineLayout, 1, 1, &DS_Sea.descriptorSets[currentImage],
+			0, nullptr);
+		vkCmdDrawIndexed(commandBuffer,
+			static_cast<uint32_t>(M_Sea.indices.size()), 1, 0, 0, 0);
 	}
 
 	// Here is where you update the uniforms.
@@ -207,13 +241,20 @@ protected:
 		float time = std::chrono::duration<float, std::chrono::seconds::period>
 			(currentTime - startTime).count();*/
 
+		//idea for increasing the velocity: everytime that the time is a multiple of 5
+		//then it increases the vel variable by 0.25f;
+		/*time_elapsed += 0.1f;
+		if (time_elapsed == 5.0f) {
+			vel = vel * 3.0f;
+			time_elapsed = 0.0f;
+		}*/
 
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
 
 		void* data;
 
-		gubo.view = glm::lookAt(glm::vec3(0.0f, 25.0f, -25.0f),
+		gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
 			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 		gubo.proj = glm::perspective(glm::radians(45.0f),
@@ -229,7 +270,8 @@ protected:
 		// Here is where you actually update your uniforms
 		// For rock 1
 		if (20.0f + rock_pos * 4.0f > -20.0f) {
-			rock_pos -= 0.0015f;
+			//rock_pos -= (0.0015f * vel);
+			rock_pos -= 0.0015f + speeder;
 		}
 		else {
 			rock_pos = 0.0f;
@@ -244,7 +286,8 @@ protected:
 
 		// For rock 2
 		if (15.0f + rock_pos2 * 4.0f > -20.0f) {
-			rock_pos2 -= 0.0015f;
+			rock_pos2 -= 0.0015f + speeder;
+			if (speeder < speederLimit) speeder += 0.0000001;
 		}
 		else {
 			rock_pos2 = 0.0f; // make the rock restart from the beginning
@@ -258,25 +301,51 @@ protected:
 		vkUnmapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage]);
 	
 		// For the boat
+		float rotz = 0.0f;
+		float rotx = 0.0f;
 
 		if (glfwGetKey(window, GLFW_KEY_D)) {
 			if (pos > -10.0f) {
 				pos -= 0.02f;
+				rotz = 0.3f;
 			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
 			if (pos < 10.0f ) {
 				pos += 0.02f;
+				rotx = 0.3f;
 			}
 		}
+
+		if ((glfwGetKey(window, GLFW_KEY_D)) && (glfwGetKey(window, GLFW_KEY_A))) {
+			rotz = 0.0f;
+			rotx = 0.0f;
+		}
+
 		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f, -8.0f)),
 			glm::vec3(0.009f, 0.009f, 0.009f));
 		ubo.model = glm::rotate(ubo.model, glm::radians(90.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::vec3(rotx, 1.0f, rotz));
+		rotz = 0.0f;
+		rotx = 0.0f;
 		vkMapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage]);
+
+		// For the sea
+		if (sea_pos * 4.0f > 0.0f) {
+			sea_pos -= (0.001f) + speeder;
+		}
+		else {
+			sea_pos = 5.0f; // make the sea restart from the beginning
+		}
+		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, sea_pos*4.0f)),
+			glm::vec3(4.0f, 4.0f, 4.0f));
+		vkMapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage], 0,
+			sizeof(ubo), 0, &data);
+		memcpy(data, &ubo, sizeof(ubo));
+		vkUnmapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage]);
 	}
 };
 
