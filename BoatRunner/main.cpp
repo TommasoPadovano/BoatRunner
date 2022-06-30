@@ -29,6 +29,10 @@ std::vector<SingleText> SceneText = {
 };
 
 // list of variables used
+float randomRotYBigRock = 0.0f;
+float randomRotYLittleRock = 0.0f;
+float randomTranslationYLittleRock = -1.5f;
+float randomTranslationYBigRock = -1.5f;
 float pos = 0.0f;
 float rock_pos = 0.0f;
 float rock_pos2 = 0.0f;
@@ -37,7 +41,10 @@ float random_pos = 0.0f;
 float random_pos2 = -6.0f;
 
 float speeder = 0.0f;
-float speederLimit = 0.006f;
+float speederLimit = 0.1f;
+float speederIncrement = 0.000002;
+
+float boatMovingPar = 0.05f;
 
 float time_elapsed = 0.0f;
 float vel = 1.0f;
@@ -85,9 +92,9 @@ protected:
 	// Here you set the main application parameters
 	void setWindowParameters() {
 		// window size, titile and initial background
-		windowWidth = 800;
-		windowHeight = 600;
-		windowTitle = "My Project";
+		windowWidth = 1600;
+		windowHeight = 1200;
+		windowTitle = "Boat Runner";
 		initialBackgroundColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		// Descriptor pool sizes
@@ -154,7 +161,7 @@ protected:
 			});
 
 		M_GameOver.init(this, "models/LargePlane.obj");
-		T_GameOver.init(this, "textures/GameOver.jpg");
+		T_GameOver.init(this, "textures/youdied2.png"); // other: GameOver.jpg
 		DS_GameOver.init(this, &DSLobj, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &T_GameOver}
@@ -310,14 +317,18 @@ protected:
 		// Here is where you actually update your uniforms
 		// For rock 1
 		if (20.0f + rock_pos * 4.0f > -20.0f) {
-			rock_pos -= 0.0015f + speeder;
+			rock_pos -= 0.0025f + speeder;
 		}
 		else {
-			rock_pos = 0.0f;
+			randomRotYLittleRock = rand() % 360;
+			randomTranslationYLittleRock = (rand() % 10) * 0.1 - 0.5f;
+			rock_pos = 7.0f;
 			srand(time(NULL));
 			random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
 		}
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2 , 0.0f, 25.0f + rock_pos * 4.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2 , randomTranslationYLittleRock, 25.0f + rock_pos * 4.0f));
+		ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYLittleRock),
+			glm::vec3(0.0f, 1.0f, 0.0f));
 		vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
@@ -325,15 +336,21 @@ protected:
 
 		// For rock 2
 		if (15.0f + rock_pos2 * 4.0f > -20.0f) {
-			rock_pos2 -= 0.0015f + speeder;
-			if (speeder < speederLimit) speeder += 0.0000001;
+			rock_pos2 -= 0.0025f + speeder;
+			if (speeder < speederLimit) speeder += speederIncrement;
+			else speeder = speederLimit;
 		}
 		else {
-			rock_pos2 = 0.0f; // make the rock restart from the beginning
+			randomRotYBigRock = rand() % 360;
+			randomTranslationYBigRock = (rand() % 10) * 0.1 - 2.0f;
+			rock_pos2 = 7.0f; // make the rock restart from the beginning
 			srand(time(NULL));
 			random_pos = 10.0f - (rand()%10)*2; //change the position
 		}
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, -1.5f, 15.0f + rock_pos2*4.0f));
+		
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYBigRock, 15.0f + rock_pos2*4.0f));
+		ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYBigRock),
+			glm::vec3(0.0f, 1.0f, 0.0f)); 
 		vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
@@ -345,14 +362,14 @@ protected:
 
 		if (glfwGetKey(window, GLFW_KEY_D)) {
 			if (pos > -10.0f) {
-				pos -= 0.02f;
+				pos -= boatMovingPar;
 				rotx = -15.0f;
 				roty = 85.0f;
 			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
 			if (pos < 10.0f ) {
-				pos += 0.02f;
+				pos += boatMovingPar;
 				rotx = 15.0f;
 				roty = 95.0f;
 			}
@@ -363,7 +380,7 @@ protected:
 			roty = 90.0f;
 		}
 
-		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f, -8.0f)),
+		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, -0.2f, -8.0f)),
 			glm::vec3(0.009f, 0.009f, 0.009f));
 		ubo.model = glm::rotate(ubo.model, glm::radians(roty),
 			glm::vec3(0.0f, 1.0f, 0.0f));
@@ -431,6 +448,28 @@ protected:
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_GameOver.uniformBuffersMemory[0][currentImage]);
+
+		
+		// GAME RESET
+		if (glfwGetKey(window, GLFW_KEY_X)) {
+			randomRotYBigRock = 0.0f;
+			randomRotYLittleRock = 0.0f;
+			randomTranslationYLittleRock = -1.5f;
+			randomTranslationYBigRock = -1.5f;
+			pos = 0.0f;
+			rock_pos = 0.0f;
+			rock_pos2 = 0.0f;
+			sea_pos = 5.0f;
+			random_pos = 0.0f;
+			random_pos2 = -6.0f;
+
+			speeder = 0.0f;
+
+			time_elapsed = 0.0f;
+			vel = 1.0f;
+
+			gameOver = false;
+		}
 	}
 };
 
