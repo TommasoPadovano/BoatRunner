@@ -76,6 +76,10 @@ protected:
 	Texture T_Sea;
 	DescriptorSet DS_Sea;
 
+	Model M_GameOver;
+	Texture T_GameOver;
+	DescriptorSet DS_GameOver;
+
 	DescriptorSet DS_global;
 
 	// Here you set the main application parameters
@@ -87,9 +91,9 @@ protected:
 		initialBackgroundColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		// Descriptor pool sizes
-		uniformBlocksInPool = 5;
-		texturesInPool = 4;
-		setsInPool = 5;
+		uniformBlocksInPool = 6;
+		texturesInPool = 5;
+		setsInPool = 6;
 	}
 
 	// Here you load and setup all your Vulkan objects
@@ -149,6 +153,13 @@ protected:
 						{1, TEXTURE, 0, &T_Sea}
 			});
 
+		M_GameOver.init(this, "models/LargePlane.obj");
+		T_GameOver.init(this, "textures/GameOver.jpg");
+		DS_GameOver.init(this, &DSLobj, {
+						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+						{1, TEXTURE, 0, &T_GameOver}
+			});
+
 		DS_global.init(this, &DSLglobal, {
 						{0, UNIFORM, sizeof(globalUniformBufferObject), nullptr}
 			});
@@ -171,6 +182,10 @@ protected:
 		DS_Sea.cleanup();
 		T_Sea.cleanup();
 		M_Sea.cleanup();
+
+		DS_GameOver.cleanup();
+		T_GameOver.cleanup();
+		M_GameOver.cleanup();
 
 		DS_global.cleanup();
 
@@ -245,6 +260,18 @@ protected:
 			0, nullptr);
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Sea.indices.size()), 1, 0, 0, 0);
+
+		VkBuffer vertexBuffers5[] = { M_GameOver.vertexBuffer };
+		VkDeviceSize offsets5[] = { 0 };
+		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers5, offsets5);
+		vkCmdBindIndexBuffer(commandBuffer, M_GameOver.indexBuffer, 0,
+			VK_INDEX_TYPE_UINT32);
+		vkCmdBindDescriptorSets(commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			P1.pipelineLayout, 1, 1, &DS_GameOver.descriptorSets[currentImage],
+			0, nullptr);
+		vkCmdDrawIndexed(commandBuffer,
+			static_cast<uint32_t>(M_GameOver.indices.size()), 1, 0, 0, 0);
 	}
 
 	// Here is where you update the uniforms.
@@ -259,6 +286,8 @@ protected:
 		UniformBufferObject ubo{};
 
 		void* data;
+
+		//if the game is over, move the camera to another direction that displays the "GAME OVER" sign.
 		if (gameOver == false) {
 			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
 				glm::vec3(0.0f, 0.0f, 0.0f),
@@ -281,7 +310,6 @@ protected:
 		// Here is where you actually update your uniforms
 		// For rock 1
 		if (20.0f + rock_pos * 4.0f > -20.0f) {
-			//rock_pos -= (0.0015f * vel);
 			rock_pos -= 0.0015f + speeder;
 		}
 		else {
@@ -359,13 +387,13 @@ protected:
 
 		// collision with rock 2
 		// from the left
-		if ((pos + 1.0f >= random_pos && random_pos + 5.0f >= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 5.5f >= -8.0f)) {
+		if ((pos + 1.0f >= random_pos && random_pos + 5.0f >= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f)) {
 			//ubo.model = glm::rotate(ubo.model, glm::radians(-270.0f),
 				//glm::vec3(1.0f, 0.0f, 0.0f));
 			gameOver = true;
 		}
 		//from the right
-		if ((pos - 1.0f <= random_pos && random_pos - 5.0f <= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 5.5f >= -8.0f)) {
+		if ((pos - 1.0f <= random_pos && random_pos - 5.0f <= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f)) {
 			//ubo.model = glm::rotate(ubo.model, glm::radians(270.0f),
 				//glm::vec3(1.0f, 0.0f, 0.0f));
 			gameOver = true;
@@ -391,6 +419,18 @@ protected:
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage]);
+
+		//For the GameOver (to be adjusted, this is just to have an idea)
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-24.7f, 45.0f, -30.0f));
+		ubo.model = glm::rotate(ubo.model, glm::radians(90.0f),
+			glm::vec3(1.0f, 0.0f, 0.0f));
+		ubo.model = glm::rotate(ubo.model, glm::radians(180.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+		ubo.model = glm::scale(ubo.model, glm::vec3(4.5f, 1.0f, 4.5f));
+		vkMapMemory(device, DS_GameOver.uniformBuffersMemory[0][currentImage], 0,
+			sizeof(ubo), 0, &data);
+		memcpy(data, &ubo, sizeof(ubo));
+		vkUnmapMemory(device, DS_GameOver.uniformBuffersMemory[0][currentImage]);
 	}
 };
 
