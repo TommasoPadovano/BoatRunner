@@ -16,6 +16,19 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 };
 
+// this will be used to show the endgame text when a collision occurs
+struct SingleText {
+	int usedLines;
+	const char* l[4];
+	int start;
+	int len;
+};
+
+std::vector<SingleText> SceneText = {
+	{1, {"GAME OVER", "", "", ""}, 0, 0},
+};
+
+// list of variables used
 float pos = 0.0f;
 float rock_pos = 0.0f;
 float rock_pos2 = 0.0f;
@@ -29,6 +42,7 @@ float speederLimit = 0.006f;
 float time_elapsed = 0.0f;
 float vel = 1.0f;
 
+bool gameOver = false;
 
 // MAIN ! 
 class MyProject : public BaseProject {
@@ -241,22 +255,19 @@ protected:
 		float time = std::chrono::duration<float, std::chrono::seconds::period>
 			(currentTime - startTime).count();*/
 
-		//idea for increasing the velocity: everytime that the time is a multiple of 5
-		//then it increases the vel variable by 0.25f;
-		/*time_elapsed += 0.1f;
-		if (time_elapsed == 5.0f) {
-			vel = vel * 3.0f;
-			time_elapsed = 0.0f;
-		}*/
-
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
 
 		void* data;
-
-		gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f));
+		if (gameOver == false) {
+			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
+				glm::vec3(0.0f, 0.0f, 0.0f),
+				glm::vec3(0.0f, 1.0f, 0.0f));
+		} else {
+			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
+				glm::vec3(0.0f, 20.0f, -30.0f),
+				glm::vec3(0.0f, 1.0f, 0.0f));
+		}
 		gubo.proj = glm::perspective(glm::radians(45.0f),
 			swapChainExtent.width / (float)swapChainExtent.height,
 			0.1f, 1000.0f);
@@ -294,40 +305,74 @@ protected:
 			srand(time(NULL));
 			random_pos = 10.0f - (rand()%10)*2; //change the position
 		}
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, 0.0f, 15.0f + rock_pos2*4.0f));
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, -1.5f, 15.0f + rock_pos2*4.0f));
 		vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage]);
 	
 		// For the boat
-		float rotz = 0.0f;
 		float rotx = 0.0f;
+		float roty = 90.0f;
 
 		if (glfwGetKey(window, GLFW_KEY_D)) {
 			if (pos > -10.0f) {
 				pos -= 0.02f;
-				rotz = 0.3f;
+				rotx = -15.0f;
+				roty = 85.0f;
 			}
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
 			if (pos < 10.0f ) {
 				pos += 0.02f;
-				rotx = 0.3f;
+				rotx = 15.0f;
+				roty = 95.0f;
 			}
 		}
 
 		if ((glfwGetKey(window, GLFW_KEY_D)) && (glfwGetKey(window, GLFW_KEY_A))) {
-			rotz = 0.0f;
 			rotx = 0.0f;
+			roty = 90.0f;
 		}
 
 		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, 0.0f, -8.0f)),
 			glm::vec3(0.009f, 0.009f, 0.009f));
-		ubo.model = glm::rotate(ubo.model, glm::radians(90.0f),
-			glm::vec3(rotx, 1.0f, rotz));
-		rotz = 0.0f;
+		ubo.model = glm::rotate(ubo.model, glm::radians(roty),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+		ubo.model = glm::rotate(ubo.model, glm::radians(rotx),
+			glm::vec3(1.0f, 0.0f, 0.0f));
+
+		// CHECKS FOR COLLISIONS
+		// collision with rock 1
+		// from the left
+		if ((pos + 1.0f >= random_pos2 && random_pos2 + 1.5f >= pos) && (-8.0f + 5.0f >= (25.0f + rock_pos * 4.0f) && (25.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
+			//ubo.model = glm::rotate(ubo.model, glm::radians(-270.0f),
+				//glm::vec3(1.0f, 0.0f, 0.0f));
+			gameOver = true;
+		}
+		// from the right
+		if ((pos - 1.0f <= random_pos2 && random_pos2 - 2.0f <= pos) && (-8.0f + 5.0f >= (25.0f + rock_pos * 4.0f) && (25.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
+			//ubo.model = glm::rotate(ubo.model, glm::radians(270.0f),
+				//glm::vec3(1.0f, 0.0f, 0.0f));
+			gameOver = true;
+		}
+
+		// collision with rock 2
+		// from the left
+		if ((pos + 1.0f >= random_pos && random_pos + 5.0f >= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 5.5f >= -8.0f)) {
+			//ubo.model = glm::rotate(ubo.model, glm::radians(-270.0f),
+				//glm::vec3(1.0f, 0.0f, 0.0f));
+			gameOver = true;
+		}
+		//from the right
+		if ((pos - 1.0f <= random_pos && random_pos - 5.0f <= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 5.5f >= -8.0f)) {
+			//ubo.model = glm::rotate(ubo.model, glm::radians(270.0f),
+				//glm::vec3(1.0f, 0.0f, 0.0f));
+			gameOver = true;
+		}
+
 		rotx = 0.0f;
+		roty = 90.0f;
 		vkMapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
@@ -340,7 +385,7 @@ protected:
 		else {
 			sea_pos = 5.0f; // make the sea restart from the beginning
 		}
-		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, sea_pos*4.0f)),
+		ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, sea_pos*4.0f)),
 			glm::vec3(4.0f, 4.0f, 4.0f));
 		vkMapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
