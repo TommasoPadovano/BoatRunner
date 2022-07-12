@@ -87,6 +87,9 @@ protected:
 	Texture T_GameOver;
 	DescriptorSet DS_GameOver;
 
+	//Texture T_NewGame;
+	//DescriptorSet DS_NewGame;
+
 	DescriptorSet DS_global;
 
 	// Here you set the main application parameters
@@ -161,7 +164,7 @@ protected:
 			});
 
 		M_GameOver.init(this, "models/LargePlane.obj");
-		T_GameOver.init(this, "textures/youdied2.png"); // other: GameOver.jpg
+		T_GameOver.init(this, "textures/youdied3.png"); // other: GameOver.jpg
 		DS_GameOver.init(this, &DSLobj, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &T_GameOver}
@@ -437,13 +440,13 @@ protected:
 		memcpy(data, &ubo, sizeof(ubo));
 		vkUnmapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage]);
 
-		//For the GameOver (to be adjusted, this is just to have an idea)
-		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-24.7f, 45.0f, -30.0f));
+		//For the GameOver
+		ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(-27.5f, 48.1f, -30.0f));
 		ubo.model = glm::rotate(ubo.model, glm::radians(90.0f),
 			glm::vec3(1.0f, 0.0f, 0.0f));
 		ubo.model = glm::rotate(ubo.model, glm::radians(180.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
-		ubo.model = glm::scale(ubo.model, glm::vec3(4.5f, 1.0f, 4.5f));
+		ubo.model = glm::scale(ubo.model, glm::vec3(5.0f, 1.0f, 5.0f));
 		vkMapMemory(device, DS_GameOver.uniformBuffersMemory[0][currentImage], 0,
 			sizeof(ubo), 0, &data);
 		memcpy(data, &ubo, sizeof(ubo));
@@ -451,7 +454,7 @@ protected:
 
 		
 		// GAME RESET
-		if (glfwGetKey(window, GLFW_KEY_X)) {
+		if (glfwGetKey(window, GLFW_KEY_ENTER)) {
 			randomRotYBigRock = 0.0f;
 			randomRotYLittleRock = 0.0f;
 			randomTranslationYLittleRock = -1.5f;

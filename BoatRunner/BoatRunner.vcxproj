@@ -88,13 +88,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.0\Include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glm;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.1\Include;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\include;C:\Program Files (x86)\Microsoft Visual Studio\glm;C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\lib-vc2019;C:\VulkanSDK\1.3.204.0\Lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;C:\VulkanSDK\1.3.204.1\Lib;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\lib-vc2015</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -106,15 +106,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.0\Include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glm;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.1\Include;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\include;C:\Program Files (x86)\Microsoft Visual Studio\glm;C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\lib-vc2019;C:\VulkanSDK\1.3.204.0\Lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;C:\VulkanSDK\1.3.204.1\Lib;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\lib-vc2015</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -124,13 +124,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.0\Include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glm;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.1\Include;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\include;C:\Program Files (x86)\Microsoft Visual Studio\glm;C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\lib-vc2019;C:\VulkanSDK\1.3.204.0\Lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;C:\VulkanSDK\1.3.204.1\Lib;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\lib-vc2015</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -142,15 +142,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.0\Include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glm;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\include;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.3.204.1\Include;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\include;C:\Program Files (x86)\Microsoft Visual Studio\glm;C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\ComputerGraphicsProject\BoatRunner\headers;C:\Users\Ellie Spoken\OneDrive - Politecnico di Milano\Documenti\Visual Studio 2019\libraries\glfw\lib-vc2019;C:\VulkanSDK\1.3.204.0\Lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Tommaso\Documents\GitHub\BoatRunner\BoatRunner\headers;C:\VulkanSDK\1.3.204.1\Lib;C:\Program Files (x86)\Microsoft Visual Studio\glfw-3.3.6.bin.WIN64\lib-vc2015</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
