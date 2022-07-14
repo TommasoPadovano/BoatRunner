@@ -433,14 +433,20 @@ protected:
 			}
 
 			// collision with rock 2
+			float cosFactor = cos(glm::radians(randomRotYBigRock));
+			if (cosFactor < 0) cosFactor *= -1;
+			cosFactor = glm::max(cosFactor, 0.650f);
+			float sinFactor = sin(glm::radians(randomRotYBigRock));
+			if (sinFactor < 0) sinFactor *= -1;
+			//sinFactor = glm::max(sinFactor, 0.650f);
 			// from the left
-			if ((pos + 1.0f >= random_pos && random_pos + 5.0f >= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f)) {
+			if ((pos + 1.0f >= random_pos && random_pos + 5.0f * cosFactor >= pos) && (-8.0f + 5.0f >= (13.0f + rock_pos2 * 4.0f - 2.20f * (sinFactor)) && ((15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				//ubo.model = glm::rotate(ubo.model, glm::radians(-270.0f),
 					//glm::vec3(1.0f, 0.0f, 0.0f));
 				gameOver = true;
 			}
 			//from the right
-			if ((pos - 1.0f <= random_pos && random_pos - 5.0f <= pos) && (-8.0f + 5.0f >= (15.0f + rock_pos2 * 4.0f) && (15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f)) {
+			if ((pos - 1.0f <= random_pos && random_pos - 5.0f * cosFactor <= pos) && (-8.0f + 5.0f >= (13.0f + rock_pos2 * 4.0f - 2.20f * (sinFactor)) && ((15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				//ubo.model = glm::rotate(ubo.model, glm::radians(270.0f),
 					//glm::vec3(1.0f, 0.0f, 0.0f));
 				gameOver = true;
