@@ -7,12 +7,20 @@
 struct globalUniformBufferObject {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
-	glm::vec3 lightDir;
-	glm::vec3 lightPos;
-	glm::vec3 lightColor;
-	glm::vec3 eyePos;
-	glm::vec4 coneInOutDecayExp;
-	glm::vec4 selector;
+	alignas(16) glm::vec3 lightDir0;
+	alignas(16) glm::vec3 lightColor0;
+	alignas(16) glm::vec3 lightDir1;
+	alignas(16) glm::vec3 lightColor1;
+	alignas(16) glm::vec3 lightDir2;
+	alignas(16) glm::vec3 lightColor2;
+	alignas(16) glm::vec3 lightDir3;
+	alignas(16) glm::vec3 lightColor3;
+	alignas(16) glm::vec3 AmbColor;
+	alignas(16) glm::vec3 TopColor;
+	alignas(16) glm::vec3 DzColor;
+	alignas(16) glm::vec3 DxColor;
+	alignas(16) glm::vec3 eyePos;
+	alignas(16) glm::vec4 selector;
 };
 
 // The ubo contains the model which changes between object and is set 1
@@ -339,12 +347,22 @@ protected:
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
 
-		gubo.lightDir = glm::vec3(0.0f, 20.0f, -30.0f);
-		gubo.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-		gubo.lightPos = glm::vec3(0.0f, 20.0f, -25.0f);
+		gubo.lightColor0 = glm::vec3(0.7f, 0.7f, 0.7f);
+		gubo.lightColor1 = glm::vec3(0.0f, 0.0f, 0.0f);
+		gubo.lightColor2 = glm::vec3(0.0f, 0.0f, 0.0f);
+		gubo.lightColor3 = glm::vec3(0.0f, 0.0f, 0.0f);
+		gubo.lightDir0 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
+		gubo.lightDir1 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
+		gubo.lightDir2 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
+		gubo.lightDir3 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
+		gubo.AmbColor = glm::vec3(0.3, 0.3f, 0.1f);
+		gubo.TopColor = glm::vec3(0.1f, 0.15f, 0.3f);
+		gubo.DzColor = glm::vec3(0.5f, 0.1f, 0.1f);
+		gubo.DxColor = glm::vec3(0.0f, 0.5f, 0.1f);
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
-		gubo.coneInOutDecayExp = glm::vec4(0.9f, 0.92f, 2.0f, 0.0f);
 		gubo.selector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
+
+		gubo.selector.w = 1.0f;
 
 		void* data;
 
