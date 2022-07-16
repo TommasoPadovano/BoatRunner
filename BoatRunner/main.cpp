@@ -140,7 +140,6 @@ protected:
 		// The last array, is a vector of pointer to the layouts of the sets that will
 		// be used in this pipeline. The first element will be set 0, and so on..
 		P1.init(this, "shaders/vert.spv", "shaders/frag.spv", { &DSLglobal , &DSLobj });
-		P2.init(this, "shaders/vert.spv", "shaders/frag.spv", { &DSL_globalText , &DSL_objText });
 
 		// Models, textures and Descriptors (values assigned to the uniforms)
 		M_Rock1.init(this, "models/Rock_1.obj");
@@ -177,6 +176,12 @@ protected:
 						{1, TEXTURE, 0, &T_Sea}
 			});
 
+		DS_global.init(this, &DSLglobal, {
+						{0, UNIFORM, sizeof(globalUniformBufferObject), nullptr}
+			});
+
+		P2.init(this, "shaders/vert2.spv", "shaders/menu_frag.spv", { &DSL_globalText , &DSL_objText });
+
 		M_GameOver.init(this, "models/LargePlane.obj");
 		T_GameOver.init(this, "textures/youdied3.png"); 
 		DS_GameOver.init(this, &DSL_objText, {
@@ -188,10 +193,6 @@ protected:
 		DS_NewGame.init(this, &DSL_objText, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &T_NewGame}
-			});
-
-		DS_global.init(this, &DSLglobal, {
-						{0, UNIFORM, sizeof(globalUniformBufferObject), nullptr}
 			});
 	}
 
@@ -242,13 +243,6 @@ protected:
 			P1.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
 			0, nullptr);
 
-		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			P2.graphicsPipeline);
-		vkCmdBindDescriptorSets(commandBuffer,
-			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			P2.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
-			0, nullptr);
-
 		VkBuffer vertexBuffers[] = { M_Rock1.vertexBuffer };
 		// property .vertexBuffer of models, contains the VkBuffer handle to its vertex buffer
 		VkDeviceSize offsets[] = { 0 };
@@ -256,14 +250,12 @@ protected:
 		// property .indexBuffer of models, contains the VkBuffer handle to its index buffer
 		vkCmdBindIndexBuffer(commandBuffer, M_Rock1.indexBuffer, 0,
 			VK_INDEX_TYPE_UINT32);
-
 		// property .pipelineLayout of a pipeline contains its layout.
 		// property .descriptorSets of a descriptor set contains its elements.
 		vkCmdBindDescriptorSets(commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			P1.pipelineLayout, 1, 1, &DS_R1.descriptorSets[currentImage],
 			0, nullptr);
-
 		// property .indices.size() of models, contains the number of triangles * 3 of the mesh.
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Rock1.indices.size()), 1, 0, 0, 0);
@@ -303,6 +295,13 @@ protected:
 			0, nullptr);
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Sea.indices.size()), 1, 0, 0, 0);
+
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			P2.graphicsPipeline);
+		vkCmdBindDescriptorSets(commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			P2.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
+			0, nullptr);
 
 		VkBuffer vertexBuffers5[] = { M_GameOver.vertexBuffer };
 		VkDeviceSize offsets5[] = { 0 };
