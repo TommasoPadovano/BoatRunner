@@ -7,6 +7,12 @@
 struct globalUniformBufferObject {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
+	glm::vec3 lightDir;
+	glm::vec3 lightPos;
+	glm::vec3 lightColor;
+	glm::vec3 eyePos;
+	glm::vec4 coneInOutDecayExp;
+	glm::vec4 selector;
 };
 
 // The ubo contains the model which changes between object and is set 1
@@ -14,18 +20,6 @@ struct globalUniformBufferObject {
 // Set 1, binding 1 is the texture
 struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
-};
-
-// this will be used to show the endgame text when a collision occurs
-struct SingleText {
-	int usedLines;
-	const char* l[4];
-	int start;
-	int len;
-};
-
-std::vector<SingleText> SceneText = {
-	{1, {"GAME OVER", "", "", ""}, 0, 0},
 };
 
 // list of variables used
@@ -42,9 +36,9 @@ float random_pos2 = -6.0f;
 
 float speeder = 0.0f;
 float speederLimit = 0.1f;
-float speederIncrement = 0.000002;
+float speederIncrement = 0.0000002;
 
-float boatMovingPar = 0.05f;
+float boatMovingPar = 0.025f;
 
 float time_elapsed = 0.0f;
 float vel = 1.0f;
@@ -61,8 +55,13 @@ protected:
 	DescriptorSetLayout DSLglobal;
 	DescriptorSetLayout DSLobj;
 
+	DescriptorSetLayout DSL_globalText;
+	DescriptorSetLayout DSL_objText;
+
+
 	// Pipelines [Shader couples]
 	Pipeline P1;
+	Pipeline P2; // this pipeline is for the gameover/newgame plane
 
 	// Models, textures and Descriptors (values assigned to the uniforms)
 	Model M_Rock1;
@@ -124,10 +123,24 @@ protected:
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}
 			});
 
+		DSL_objText.init(this, {
+			// this array contains the binding:
+			// first  element : the binding number
+			// second element : the time of element (buffer or texture)
+			// third  element : the pipeline stage where it will be used
+			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT},
+			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
+			});
+
+		DSL_globalText.init(this, {
+			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}
+			});
+
 		// Pipelines [Shader couples]
 		// The last array, is a vector of pointer to the layouts of the sets that will
 		// be used in this pipeline. The first element will be set 0, and so on..
 		P1.init(this, "shaders/vert.spv", "shaders/frag.spv", { &DSLglobal , &DSLobj });
+		P2.init(this, "shaders/vert.spv", "shaders/frag.spv", { &DSL_globalText , &DSL_objText });
 
 		// Models, textures and Descriptors (values assigned to the uniforms)
 		M_Rock1.init(this, "models/Rock_1.obj");
@@ -165,14 +178,14 @@ protected:
 			});
 
 		M_GameOver.init(this, "models/LargePlane.obj");
-		T_GameOver.init(this, "textures/youdied3.png"); // other: GameOver.jpg
-		DS_GameOver.init(this, &DSLobj, {
+		T_GameOver.init(this, "textures/youdied3.png"); 
+		DS_GameOver.init(this, &DSL_objText, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &T_GameOver}
 			});
 
 		T_NewGame.init(this, "textures/new_game.png"); 
-		DS_NewGame.init(this, &DSLobj, {
+		DS_NewGame.init(this, &DSL_objText, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &T_NewGame}
 			});
@@ -210,8 +223,11 @@ protected:
 		DS_global.cleanup();
 
 		P1.cleanup();
+		P2.cleanup();
 		DSLglobal.cleanup();
 		DSLobj.cleanup();
+		DSL_globalText.cleanup();
+		DSL_objText.cleanup();
 	}
 
 	// Here it is the creation of the command buffer:
@@ -224,6 +240,13 @@ protected:
 		vkCmdBindDescriptorSets(commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			P1.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
+			0, nullptr);
+
+		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			P2.graphicsPipeline);
+		vkCmdBindDescriptorSets(commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			P2.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
 			0, nullptr);
 
 		VkBuffer vertexBuffers[] = { M_Rock1.vertexBuffer };
@@ -288,7 +311,7 @@ protected:
 			VK_INDEX_TYPE_UINT32);
 		vkCmdBindDescriptorSets(commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			P1.pipelineLayout, 1, 1, &DS_GameOver.descriptorSets[currentImage],
+			P2.pipelineLayout, 1, 1, &DS_GameOver.descriptorSets[currentImage],
 			0, nullptr);
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_GameOver.indices.size()), 1, 0, 0, 0);
@@ -300,7 +323,7 @@ protected:
 			VK_INDEX_TYPE_UINT32);
 		vkCmdBindDescriptorSets(commandBuffer,
 			VK_PIPELINE_BIND_POINT_GRAPHICS,
-			P1.pipelineLayout, 1, 1, &DS_NewGame.descriptorSets[currentImage],
+			P2.pipelineLayout, 1, 1, &DS_NewGame.descriptorSets[currentImage],
 			0, nullptr);
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_GameOver.indices.size()), 1, 0, 0, 0);
@@ -316,6 +339,13 @@ protected:
 
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
+
+		gubo.lightDir = glm::vec3(0.0f, 20.0f, -30.0f);
+		gubo.lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+		gubo.lightPos = glm::vec3(0.0f, 20.0f, -25.0f);
+		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
+		gubo.coneInOutDecayExp = glm::vec4(0.9f, 0.92f, 2.0f, 0.0f);
+		gubo.selector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 
 		void* data;
 

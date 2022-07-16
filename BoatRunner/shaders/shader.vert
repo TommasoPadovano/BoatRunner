@@ -2,6 +2,12 @@
 layout(set= 0, binding = 0) uniform globalUniformBufferObject {
 	mat4 view;
 	mat4 proj;
+	vec3 lightDir;
+	vec3 lightPos;
+	vec3 lightColor;
+	vec3 eyePos;
+	vec4 coneInOutDecayExp;
+	vec4 selector;
 } gubo;
 
 layout(set= 1, binding = 0) uniform UniformBufferObject {
