@@ -70,6 +70,7 @@ protected:
 	// Pipelines [Shader couples]
 	Pipeline P1;
 	Pipeline P2; // this pipeline is for the gameover/newgame plane
+	
 
 	// Models, textures and Descriptors (values assigned to the uniforms)
 	Model M_Rock1;
@@ -188,7 +189,7 @@ protected:
 						{0, UNIFORM, sizeof(globalUniformBufferObject), nullptr}
 			});
 
-		P2.init(this, "shaders/vert2.spv", "shaders/menu_frag.spv", { &DSL_globalText , &DSL_objText });
+		P2.init(this, "shaders/vert.spv", "shaders/menu_frag.spv", { &DSL_globalText , &DSL_objText });
 
 		M_GameOver.init(this, "models/LargePlane.obj");
 		T_GameOver.init(this, "textures/youdied3.png"); 
@@ -347,18 +348,19 @@ protected:
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
 
-		gubo.lightColor0 = glm::vec3(0.7f, 0.7f, 0.7f);
-		gubo.lightColor1 = glm::vec3(0.0f, 0.0f, 0.0f);
-		gubo.lightColor2 = glm::vec3(0.0f, 0.0f, 0.0f);
-		gubo.lightColor3 = glm::vec3(0.0f, 0.0f, 0.0f);
-		gubo.lightDir0 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
-		gubo.lightDir1 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
+		gubo.lightColor0 = glm::vec3(1.0f, 1.0f, 1.0f);
+		/*gubo.lightColor1 = glm::vec3(0.0f, 0.0f, 0.0f);
+		gubo.lightColor2 = glm::vec3(0.0f, 0.0f, 0.0f); 
+		gubo.lightColor3 = glm::vec3(0.0f, 0.0f, 0.0f);*/
+		gubo.lightDir0 = glm::vec3(-0.4830f, 0.9365f, 0.5588f);
+		//gubo.lightDir0 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
+		/*gubo.lightDir1 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
 		gubo.lightDir2 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
-		gubo.lightDir3 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
-		gubo.AmbColor = glm::vec3(0.3, 0.3f, 0.1f);
-		gubo.TopColor = glm::vec3(0.1f, 0.15f, 0.3f);
-		gubo.DzColor = glm::vec3(0.5f, 0.1f, 0.1f);
-		gubo.DxColor = glm::vec3(0.0f, 0.5f, 0.1f);
+		gubo.lightDir3 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));*/
+		gubo.AmbColor = glm::vec3(0.30f, 0.30f, 0.30f);
+		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); //rgb
+		gubo.DzColor = glm::vec3(1.5f, 1.5f, 1.5f);
+		gubo.DxColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
 		gubo.selector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 

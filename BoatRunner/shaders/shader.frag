@@ -59,7 +59,7 @@ void main() {
 	vec3 Norm = normalize(fragNorm);
 	vec3 EyeDir = normalize(gubo.eyePos.xyz - fragViewDir);
 
-	float AmbFact = 0.025;
+	float AmbFact = 0.25;
 	
 	vec3 DifCol = texture(texSampler, fragTexCoord).rgb * gubo.selector.w +
 				  vec3(1,1,1) * (1-gubo.selector.w);
