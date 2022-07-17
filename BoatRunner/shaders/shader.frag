@@ -5,17 +5,9 @@ layout(set= 0, binding = 0) uniform globalUniformBufferObject {
 	mat4 proj;
 	vec3 lightDir0; 
 	vec3 lightColor0; 
-	vec3 lightDir1;
-	vec3 lightColor1;
-	vec3 lightDir2;
-	vec3 lightColor2;
-	vec3 lightDir3;
-	vec3 lightColor3;
 
 	vec3 AmbColor;	
 	vec3 TopColor;	
-	vec3 DzColor;
-	vec3 DxColor;
 
 	vec3 eyePos;
 	vec4 selector;

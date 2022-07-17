@@ -9,16 +9,8 @@ struct globalUniformBufferObject {
 	alignas(16) glm::mat4 proj;
 	alignas(16) glm::vec3 lightDir0;
 	alignas(16) glm::vec3 lightColor0;
-	alignas(16) glm::vec3 lightDir1;
-	alignas(16) glm::vec3 lightColor1;
-	alignas(16) glm::vec3 lightDir2;
-	alignas(16) glm::vec3 lightColor2;
-	alignas(16) glm::vec3 lightDir3;
-	alignas(16) glm::vec3 lightColor3;
 	alignas(16) glm::vec3 AmbColor;
 	alignas(16) glm::vec3 TopColor;
-	alignas(16) glm::vec3 DzColor;
-	alignas(16) glm::vec3 DxColor;
 	alignas(16) glm::vec3 eyePos;
 	alignas(16) glm::vec4 selector;
 };
@@ -30,33 +22,35 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 model;
 };
 
-// list of variables used
-float randomRotYBigRock = 0.0f;
-float randomRotYLittleRock = 0.0f;
-float randomTranslationYLittleRock = -1.5f;
-float randomTranslationYBigRock = -1.5f;
-float pos = 0.0f;
-float rock_pos = 0.0f;
-float rock_pos2 = 0.0f;
-float sea_pos = 5.0f;
-float random_pos = 0.0f;
-float random_pos2 = -6.0f;
-
-float speeder = 0.0f;
-float speederLimit = 0.1f;
-float speederIncrement = 0.0000002;
-
-float boatMovingPar = 0.025f;
-
-float time_elapsed = 0.0f;
-float vel = 1.0f;
-
-bool gameOver = false;
-bool gameStarted = false;
 
 // MAIN ! 
 class MyProject : public BaseProject {
 protected:
+	// list of variables used
+	float randomRotYBigRock = 0.0f;
+	float randomRotYLittleRock = 0.0f;
+	float randomTranslationYLittleRock = -1.5f;
+	float randomTranslationYBigRock = -1.5f;
+	float pos = 0.0f;
+	float rock_pos = 0.0f;
+	float rock_pos2 = 0.0f;
+	float sea_pos = 6.0f;
+	float light_pos = 0.0f;
+	float random_pos = 0.0f;
+	float random_pos2 = -6.0f;
+
+	float speeder = 0.0f;
+	float speederLimit = 0.1f;
+	float speederIncrement = 0.0000002;
+
+	float boatMovingPar = 0.025f;
+
+	float time_elapsed = 0.0f;
+	float vel = 1.0f;
+
+	bool gameOver = false;
+	bool gameStarted = false;
+
 	// Here you list all the Vulkan objects you need:
 
 	// Descriptor Layouts [what will be passed to the shaders]
@@ -348,23 +342,21 @@ protected:
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
 
-		gubo.lightColor0 = glm::vec3(1.0f, 1.0f, 1.0f);
-		/*gubo.lightColor1 = glm::vec3(0.0f, 0.0f, 0.0f);
-		gubo.lightColor2 = glm::vec3(0.0f, 0.0f, 0.0f); 
-		gubo.lightColor3 = glm::vec3(0.0f, 0.0f, 0.0f);*/
-		gubo.lightDir0 = glm::vec3(-0.4830f, 0.9365f, 0.5588f);
-		//gubo.lightDir0 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
-		/*gubo.lightDir1 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
-		gubo.lightDir2 = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));
-		gubo.lightDir3 = glm::vec3(-cos(glm::radians(135.0f)) * cos(glm::radians(-30.0f)), -sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(-30.0f)));*/
-		gubo.AmbColor = glm::vec3(0.30f, 0.30f, 0.30f);
+		gubo.lightColor0 = glm::vec3(0.8f, 0.8f, 0.8f);
+		gubo.lightDir0 = glm::vec3(0.0f, 1.0f - light_pos, -2.0f + light_pos);
+		gubo.AmbColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); //rgb
-		gubo.DzColor = glm::vec3(1.5f, 1.5f, 1.5f);
-		gubo.DxColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
 		gubo.selector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 
 		gubo.selector.w = 1.0f;
+
+		if (-2.0 + light_pos >= 0.0f) {
+			light_pos = 1.0f;
+		}
+		else {
+			light_pos += speederIncrement*100;
+		}
 
 		void* data;
 
@@ -374,7 +366,7 @@ protected:
 				glm::vec3(0.0f, 20.0f, -30.0f),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 		} else {
-			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
+			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f - light_pos, -25.0f - light_pos),
 				glm::vec3(0.0f, 0.0f, 0.0f),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 		}
@@ -395,7 +387,7 @@ protected:
 		if (gameStarted == true) {
 			// Here is where you actually update your uniforms
 			// For rock 1
-			if (20.0f + rock_pos * 4.0f > -20.0f) {
+			if (40.0f + rock_pos * 4.0f > -20.0f) {
 				rock_pos -= 0.0025f + speeder;
 			}
 			else {
@@ -405,7 +397,7 @@ protected:
 				srand(time(NULL));
 				random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
 			}
-			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2, randomTranslationYLittleRock, 25.0f + rock_pos * 4.0f));
+			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2, randomTranslationYLittleRock, 40.0f + rock_pos * 4.0f));
 			ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYLittleRock),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 			vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
@@ -414,7 +406,7 @@ protected:
 			vkUnmapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage]);
 
 			// For rock 2
-			if (15.0f + rock_pos2 * 4.0f > -20.0f) {
+			if (30.0f + rock_pos2 * 4.0f > -20.0f) {
 				rock_pos2 -= 0.0025f + speeder;
 				if (speeder < speederLimit) speeder += speederIncrement;
 				else speeder = speederLimit;
@@ -427,7 +419,7 @@ protected:
 				random_pos = 10.0f - (rand() % 10) * 2; //change the position
 			}
 
-			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYBigRock, 15.0f + rock_pos2 * 4.0f));
+			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYBigRock, 30.0f + rock_pos2 * 4.0f));
 			ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYBigRock),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 			vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
@@ -469,15 +461,11 @@ protected:
 			// CHECKS FOR COLLISIONS
 			// collision with rock 1
 			// from the left
-			if ((pos + 1.0f >= random_pos2 && random_pos2 + 1.5f >= pos) && (-8.0f + 5.0f >= (25.0f + rock_pos * 4.0f) && (25.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
-				//ubo.model = glm::rotate(ubo.model, glm::radians(-270.0f),
-					//glm::vec3(1.0f, 0.0f, 0.0f));
+			if ((pos + 1.0f >= random_pos2 && random_pos2 + 1.5f >= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
 				gameOver = true;
 			}
 			// from the right
-			if ((pos - 1.0f <= random_pos2 && random_pos2 - 2.0f <= pos) && (-8.0f + 5.0f >= (25.0f + rock_pos * 4.0f) && (25.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
-				//ubo.model = glm::rotate(ubo.model, glm::radians(270.0f),
-					//glm::vec3(1.0f, 0.0f, 0.0f));
+			if ((pos - 1.0f <= random_pos2 && random_pos2 - 2.0f <= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
 				gameOver = true;
 			}
 
@@ -489,15 +477,11 @@ protected:
 			if (sinFactor < 0) sinFactor *= -1;
 			//sinFactor = glm::max(sinFactor, 0.650f);
 			// from the left
-			if ((pos + 1.0f >= random_pos && random_pos + 5.5f * cosFactor >= pos) && (-8.0f + 5.0f >= (13.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
-				//ubo.model = glm::rotate(ubo.model, glm::radians(-270.0f),
-					//glm::vec3(1.0f, 0.0f, 0.0f));
+			if ((pos + 1.0f >= random_pos && random_pos + 5.5f * cosFactor >= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				gameOver = true;
 			}
 			//from the right
-			if ((pos - 1.0f <= random_pos && random_pos - 5.0f * cosFactor <= pos) && (-8.0f + 5.0f >= (13.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((15.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
-				//ubo.model = glm::rotate(ubo.model, glm::radians(270.0f),
-					//glm::vec3(1.0f, 0.0f, 0.0f));
+			if ((pos - 1.0f <= random_pos && random_pos - 5.0f * cosFactor <= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				gameOver = true;
 			}
 
@@ -510,13 +494,13 @@ protected:
 
 			// For the sea
 			if (sea_pos * 4.0f > 0.0f) {
-				sea_pos -= (0.001f) + speeder;
+				sea_pos -= (0.0025f) + speeder;
 			}
 			else {
-				sea_pos = 5.0f; // make the sea restart from the beginning
+				sea_pos = 6.0f; // make the sea restart from the beginning
 			}
-			ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, sea_pos * 4.0f)),
-				glm::vec3(4.0f, 4.0f, 4.0f));
+			ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.5f, sea_pos * 6.0f)),
+				glm::vec3(7.0f, 1.0f, 6.0f));
 			vkMapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage], 0,
 				sizeof(ubo), 0, &data);
 			memcpy(data, &ubo, sizeof(ubo));
@@ -534,6 +518,7 @@ protected:
 				sea_pos = 5.0f;
 				random_pos = 0.0f;
 				random_pos2 = -6.0f;
+				light_pos = 0.0f;
 
 				speeder = 0.0f;
 
