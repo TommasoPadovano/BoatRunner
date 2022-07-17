@@ -36,8 +36,8 @@ protected:
 	float rock_pos2 = 0.0f;
 	float sea_pos = 6.0f;
 	float light_pos = 0.0f;
-	float random_pos = 0.0f;
-	float random_pos2 = -6.0f;
+	float random_pos2 = 0.0f;
+	float random_pos = -6.0f;
 
 	float speeder = 0.0f;
 	float speederLimit = 0.1f;
@@ -395,9 +395,9 @@ protected:
 				randomTranslationYLittleRock = (rand() % 10) * 0.1 - 0.5f;
 				rock_pos = 7.0f;
 				srand(time(NULL));
-				random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
+				random_pos = 10.0f - (rand() % 10) * 2; //change the position
 			}
-			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2, randomTranslationYLittleRock, 40.0f + rock_pos * 4.0f));
+			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYLittleRock, 40.0f + rock_pos * 4.0f));
 			ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYLittleRock),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 			vkMapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage], 0,
@@ -415,11 +415,16 @@ protected:
 				randomRotYBigRock = rand() % 360;
 				randomTranslationYBigRock = (rand() % 10) * 0.1 - 2.0f;
 				rock_pos2 = 7.0f; // make the rock restart from the beginning
+				if ((30.0f + rock_pos2 * 4.0f) == (40.0f + rock_pos * 4.0f)) rock_pos2 += 5.0f;
 				srand(time(NULL));
-				random_pos = 10.0f - (rand() % 10) * 2; //change the position
+				random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
+				if (random_pos == random_pos2) {
+					if (random_pos >= 0) random_pos2 = -6.0f;
+					else random_pos2 = 6.0f;
+				}
 			}
 
-			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYBigRock, 30.0f + rock_pos2 * 4.0f));
+			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos2, randomTranslationYBigRock, 30.0f + rock_pos2 * 4.0f));
 			ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYBigRock),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 			vkMapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage], 0,
@@ -461,11 +466,11 @@ protected:
 			// CHECKS FOR COLLISIONS
 			// collision with rock 1
 			// from the left
-			if ((pos + 1.0f >= random_pos2 && random_pos2 + 1.5f >= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
+			if ((pos + 1.0f >= random_pos && random_pos + 1.5f >= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
 				gameOver = true;
 			}
 			// from the right
-			if ((pos - 1.0f <= random_pos2 && random_pos2 - 2.0f <= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
+			if ((pos - 1.0f <= random_pos && random_pos - 2.0f <= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
 				gameOver = true;
 			}
 
@@ -477,11 +482,11 @@ protected:
 			if (sinFactor < 0) sinFactor *= -1;
 			//sinFactor = glm::max(sinFactor, 0.650f);
 			// from the left
-			if ((pos + 1.0f >= random_pos && random_pos + 5.5f * cosFactor >= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
+			if ((pos + 1.0f >= random_pos2 && random_pos2 + 5.5f * cosFactor >= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				gameOver = true;
 			}
 			//from the right
-			if ((pos - 1.0f <= random_pos && random_pos - 5.0f * cosFactor <= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
+			if ((pos - 1.0f <= random_pos2 && random_pos2 - 5.0f * cosFactor <= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				gameOver = true;
 			}
 
@@ -494,7 +499,7 @@ protected:
 
 			// For the sea
 			if (sea_pos * 4.0f > 0.0f) {
-				sea_pos -= (0.0025f) + speeder;
+				sea_pos -= (0.0015f) + speeder;
 			}
 			else {
 				sea_pos = 6.0f; // make the sea restart from the beginning
@@ -516,15 +521,12 @@ protected:
 				rock_pos = 0.0f;
 				rock_pos2 = 0.0f;
 				sea_pos = 5.0f;
-				random_pos = 0.0f;
-				random_pos2 = -6.0f;
+				random_pos2 = 0.0f;
+				random_pos = -6.0f;
 				light_pos = 0.0f;
-
 				speeder = 0.0f;
-
 				time_elapsed = 0.0f;
 				vel = 1.0f;
-
 				gameOver = false;
 			}
 		}
