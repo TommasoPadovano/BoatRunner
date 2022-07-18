@@ -10,7 +10,6 @@ layout(set= 0, binding = 0) uniform globalUniformBufferObject {
 	vec3 TopColor;	
 
 	vec3 eyePos;
-	vec4 selector;
 } gubo;
 
 layout(set= 1, binding = 1) uniform sampler2D texSampler;
@@ -53,10 +52,9 @@ void main() {
 
 	float AmbFact = 0.25;
 	
-	vec3 DifCol = texture(texSampler, fragTexCoord).rgb * gubo.selector.w +
-				  vec3(1,1,1) * (1-gubo.selector.w);
+	vec3 DifCol = texture(texSampler, fragTexCoord).rgb;
 
-	vec3 CompColor = gubo.selector.y * Case2_Color(Norm, EyeDir, DifCol, DifCol);
+	vec3 CompColor = Case2_Color(Norm, EyeDir, DifCol, DifCol);
 	
 	outColor = vec4(CompColor, 1.0f);
 }

@@ -12,7 +12,6 @@ struct globalUniformBufferObject {
 	alignas(16) glm::vec3 AmbColor;
 	alignas(16) glm::vec3 TopColor;
 	alignas(16) glm::vec3 eyePos;
-	alignas(16) glm::vec4 selector;
 };
 
 // The ubo contains the model which changes between object and is set 1
@@ -41,7 +40,7 @@ protected:
 
 	float speeder = 0.0f;
 	float speederLimit = 0.1f;
-	float speederIncrement = 0.0000002;
+	float speederIncrement = 0.000000002;
 
 	float boatMovingPar = 0.025f;
 
@@ -334,10 +333,10 @@ protected:
 	// Here is where you update the uniforms.
 	// Very likely this will be where you will be writing the logic of your application.
 	void updateUniformBuffer(uint32_t currentImage) {
-		/*static auto startTime = std::chrono::high_resolution_clock::now();
+		static auto startTime = std::chrono::high_resolution_clock::now();
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		float time = std::chrono::duration<float, std::chrono::seconds::period>
-			(currentTime - startTime).count();*/
+			(currentTime - startTime).count();
 
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
@@ -347,15 +346,9 @@ protected:
 		gubo.AmbColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); //rgb
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
-		gubo.selector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f);
 
-		gubo.selector.w = 1.0f;
-
-		if (-2.0 + light_pos >= 0.0f) {
-			light_pos = 1.0f;
-		}
-		else {
-			light_pos += speederIncrement*100;
+		if (-2.0 + light_pos <= 0.0f) {
+			light_pos += time * speederIncrement * 100;
 		}
 
 		void* data;
@@ -394,7 +387,7 @@ protected:
 				randomRotYLittleRock = rand() % 360;
 				randomTranslationYLittleRock = (rand() % 10) * 0.1 - 0.5f;
 				rock_pos = 7.0f;
-				srand(time(NULL));
+				//srand(time(NULL));
 				random_pos = 10.0f - (rand() % 10) * 2; //change the position
 			}
 			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYLittleRock, 40.0f + rock_pos * 4.0f));
@@ -408,7 +401,7 @@ protected:
 			// For rock 2
 			if (30.0f + rock_pos2 * 4.0f > -20.0f) {
 				rock_pos2 -= 0.0025f + speeder;
-				if (speeder < speederLimit) speeder += speederIncrement;
+				if (speeder < speederLimit) speeder += time * speederIncrement;
 				else speeder = speederLimit;
 			}
 			else {
@@ -416,7 +409,7 @@ protected:
 				randomTranslationYBigRock = (rand() % 10) * 0.1 - 2.0f;
 				rock_pos2 = 7.0f; // make the rock restart from the beginning
 				if ((30.0f + rock_pos2 * 4.0f) == (40.0f + rock_pos * 4.0f)) rock_pos2 += 5.0f;
-				srand(time(NULL));
+				//srand(time(NULL));
 				random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
 				if (random_pos == random_pos2) {
 					if (random_pos >= 0) random_pos2 = -6.0f;
@@ -480,7 +473,7 @@ protected:
 			cosFactor = glm::max(cosFactor, 0.650f);
 			float sinFactor = sin(glm::radians(randomRotYBigRock));
 			if (sinFactor < 0) sinFactor *= -1;
-			//sinFactor = glm::max(sinFactor, 0.650f);
+
 			// from the left
 			if ((pos + 1.0f >= random_pos2 && random_pos2 + 5.5f * cosFactor >= pos) && (-8.0f + 5.0f >= (28.0f + rock_pos2 * 4.0f - 2.0f * (sinFactor)) && ((30.0f + rock_pos2 * 4.0f) + 6.5f >= -8.0f))) {
 				gameOver = true;
