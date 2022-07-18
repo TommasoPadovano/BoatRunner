@@ -7,8 +7,8 @@
 struct globalUniformBufferObject {
 	alignas(16) glm::mat4 view;
 	alignas(16) glm::mat4 proj;
-	alignas(16) glm::vec3 lightDir0;
-	alignas(16) glm::vec3 lightColor0;
+	alignas(16) glm::vec3 lightDir; //vector representing the light direction
+	alignas(16) glm::vec3 lightColor; // vector representing the light color
 	alignas(16) glm::vec3 AmbColor;
 	alignas(16) glm::vec3 TopColor;
 	alignas(16) glm::vec3 eyePos;
@@ -26,69 +26,79 @@ struct UniformBufferObject {
 class MyProject : public BaseProject {
 protected:
 	// list of variables used
-	float randomRotYBigRock = 0.0f;
-	float randomRotYLittleRock = 0.0f;
-	float randomTranslationYLittleRock = -1.5f;
-	float randomTranslationYBigRock = -1.5f;
-	float pos = 0.0f;
-	float rock_pos = 0.0f;
-	float rock_pos2 = 0.0f;
-	float sea_pos = 6.0f;
-	float light_pos = 0.0f;
-	float random_pos2 = 0.0f;
-	float random_pos = -6.0f;
+	float randomRotYBigRock = 0.0f; // the random parameter that will define the big rock's orientation (teta)
+	float randomRotYLittleRock = 0.0f; // the random parameter that will define the little rock's orientation (teta)
+	float randomTranslationYLittleRock = -1.5f; // the random parameter that will define the big rock's height compared to the sea level
+	float randomTranslationYBigRock = -1.5f;  // the random parameter that will define the little rock's height compared to the sea level
+	float pos = 0.0f; // the initial position of the boat on the x-axis
+	float rock_pos = 0.0f; // the initial position of the little rock on the z-axis
+	float rock_pos2 = 0.0f; // the initial position of the big rock on the z-axis
+	float sea_pos = 6.0f; // the initial position of the sea
+	float light_pos = 0.0f; // the initial position of the light direction that will change with time
+	float random_pos = -6.0f; // the initial position of the little rock on the x-axis
+	float random_pos2 = 0.0f; // the initial position of the big rock on the x-axis
 
-	float speeder = 0.0f;
-	float speederLimit = 0.1f;
-	float speederIncrement = 0.000000002;
+	float speeder = 0.0f; // the speed increemnt at the time t
+	float speederLimit = 0.1f; //limit to the game speed
+	float speederIncrement = 0.000000002; // a costant to associate with time increasing in order to progressively increement the game speed
 
-	float boatMovingPar = 0.025f;
+	float boatMovingPar = 0.025f; //the speed at which the boat moves
+	float rotx = 0.0f; //rotation parameter for the boat on the x-axis 
+	float roty = 90.0f; //rotation parameter for the boat on the y-axis 
 
-	float time_elapsed = 0.0f;
-	float vel = 1.0f;
+	float time_elapsed = 0.0f; //non è mai usato -> chiedere a Tommaso
+	float vel = 1.0f; //non è mai usato -> chiedere a Tommaso
 
-	bool gameOver = false;
-	bool gameStarted = false;
+	bool gameOver = false; //boolean variable to detect the gameover 
+	bool gameStarted = false; //boolean variable to handle the beginning of the game
 
 	// Here you list all the Vulkan objects you need:
 
 	// Descriptor Layouts [what will be passed to the shaders]
+	//Those will be used in P1 to handle the game's main scene
 	DescriptorSetLayout DSLglobal;
 	DescriptorSetLayout DSLobj;
-
-	DescriptorSetLayout DSL_globalText;
+	//Those will be used in P2 to handle the game's screens of gameover and beginning of the game
+	DescriptorSetLayout DSL_globalText; 
 	DescriptorSetLayout DSL_objText;
 
 
 	// Pipelines [Shader couples]
-	Pipeline P1;
+	Pipeline P1; // this pipeline is for the game main scene
 	Pipeline P2; // this pipeline is for the gameover/newgame plane
 	
 
 	// Models, textures and Descriptors (values assigned to the uniforms)
+
+	//NOTE: if we want more rocks to appear in the screen we need to
+	//create multiple DescriptorSet and init them all
+	
+	// Little rock
 	Model M_Rock1;
 	Texture T_Rock1;
 	DescriptorSet DS_R1; // instance of DSLobj
 
-	//NOTE: if we want more rocks to appear in the screen we need to
-	//create multiple DescriptorSet and init them all
-
+	// Big rock 
 	Model M_Rock2;
 	Texture T_Rock2;
 	DescriptorSet DS_R2; // instance of DSLobj
 
+	// Boat
 	Model M_Boat;
 	Texture T_Boat;
 	DescriptorSet DS_Boat;
 
+	//Sea
 	Model M_Sea;
 	Texture T_Sea;
 	DescriptorSet DS_Sea;
 
+	// Gameover screen
 	Model M_GameOver;
 	Texture T_GameOver;
 	DescriptorSet DS_GameOver;
 
+	// New game screen (we can use the same model of the gameover screen)
 	Texture T_NewGame;
 	DescriptorSet DS_NewGame;
 
@@ -238,6 +248,7 @@ protected:
 	// with their buffers and textures
 	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage) {
 
+		//pipeline P1
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			P1.graphicsPipeline);
 		vkCmdBindDescriptorSets(commandBuffer,
@@ -245,6 +256,7 @@ protected:
 			P1.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
 			0, nullptr);
 
+		//Little rock
 		VkBuffer vertexBuffers[] = { M_Rock1.vertexBuffer };
 		// property .vertexBuffer of models, contains the VkBuffer handle to its vertex buffer
 		VkDeviceSize offsets[] = { 0 };
@@ -262,6 +274,7 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Rock1.indices.size()), 1, 0, 0, 0);
 	
+		//Big rock
 		VkBuffer vertexBuffers2[] = { M_Rock2.vertexBuffer };
 		VkDeviceSize offsets2[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers2, offsets2);
@@ -274,6 +287,7 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Rock2.indices.size()), 1, 0, 0, 0);
 	
+		//Boat
 		VkBuffer vertexBuffers3[] = { M_Boat.vertexBuffer };
 		VkDeviceSize offsets3[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers3, offsets3);
@@ -286,6 +300,7 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Boat.indices.size()), 1, 0, 0, 0);
 
+		//Sea
 		VkBuffer vertexBuffers4[] = { M_Sea.vertexBuffer };
 		VkDeviceSize offsets4[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers4, offsets4);
@@ -298,6 +313,8 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_Sea.indices.size()), 1, 0, 0, 0);
 
+
+		//pipeline P2
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			P2.graphicsPipeline);
 		vkCmdBindDescriptorSets(commandBuffer,
@@ -305,6 +322,7 @@ protected:
 			P2.pipelineLayout, 0, 1, &DS_global.descriptorSets[currentImage],
 			0, nullptr);
 
+		//gameover
 		VkBuffer vertexBuffers5[] = { M_GameOver.vertexBuffer };
 		VkDeviceSize offsets5[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers5, offsets5);
@@ -317,6 +335,7 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(M_GameOver.indices.size()), 1, 0, 0, 0);
 
+		//new game
 		VkBuffer vertexBuffers6[] = { M_GameOver.vertexBuffer };
 		VkDeviceSize offsets6[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers6, offsets6);
@@ -341,28 +360,31 @@ protected:
 		globalUniformBufferObject gubo{};
 		UniformBufferObject ubo{};
 
-		gubo.lightColor0 = glm::vec3(0.8f, 0.8f, 0.8f);
-		gubo.lightDir0 = glm::vec3(0.0f, 1.0f - light_pos, -2.0f + light_pos);
+		gubo.lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
+		gubo.lightDir = glm::vec3(0.0f, 1.0f - light_pos, -2.0f + light_pos);
 		gubo.AmbColor = glm::vec3(0.3f, 0.3f, 0.3f);
 		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); //rgb
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
 
+		//the light direction moves as the time passes to make the scene more realistic
 		if (-2.0 + light_pos <= 0.0f) {
 			light_pos += time * speederIncrement * 100;
 		}
 
 		void* data;
 
-		//if the game is over, move the camera to another direction that displays the "GAME OVER" sign.
+		//if the game is over, move the camera to another direction that displays the "GAME OVER" sign
+		// we use the lookAt method as the game is in 3rd person
 		if (gameOver == true || gameStarted == false) {
-			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f),
+			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f, -25.0f), //camera pointing at the screen for gameover/new game
 				glm::vec3(0.0f, 20.0f, -30.0f),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 		} else {
-			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f - light_pos, -25.0f - light_pos),
+			gubo.view = glm::lookAt(glm::vec3(0.0f, 20.0f - light_pos, -25.0f - light_pos), //camera pointing at the main game scene
 				glm::vec3(0.0f, 0.0f, 0.0f),
 				glm::vec3(0.0f, 1.0f, 0.0f));
 		}
+		
 		gubo.proj = glm::perspective(glm::radians(45.0f),
 			swapChainExtent.width / (float)swapChainExtent.height,
 			0.1f, 1000.0f);
@@ -381,15 +403,18 @@ protected:
 			// Here is where you actually update your uniforms
 			// For rock 1
 			if (40.0f + rock_pos * 4.0f > -20.0f) {
+				//rock already on the scene is moving
 				rock_pos -= 0.0025f + speeder;
 			}
 			else {
+				//new rock needs to spawn
 				randomRotYLittleRock = rand() % 360;
 				randomTranslationYLittleRock = (rand() % 10) * 0.1 - 0.5f;
 				rock_pos = 7.0f;
 				//srand(time(NULL));
 				random_pos = 10.0f - (rand() % 10) * 2; //change the position
 			}
+			//we give the rock different rotation angles and deep in order to make them look different every time
 			ubo.model = glm::translate(glm::mat4(1.0f), glm::vec3(random_pos, randomTranslationYLittleRock, 40.0f + rock_pos * 4.0f));
 			ubo.model = glm::rotate(ubo.model, glm::radians(randomRotYLittleRock),
 				glm::vec3(0.0f, 1.0f, 0.0f));
@@ -407,10 +432,10 @@ protected:
 			else {
 				randomRotYBigRock = rand() % 360;
 				randomTranslationYBigRock = (rand() % 10) * 0.1 - 2.0f;
-				rock_pos2 = 7.0f; // make the rock restart from the beginning
+				rock_pos2 = 7.0f; 
 				if ((30.0f + rock_pos2 * 4.0f) == (40.0f + rock_pos * 4.0f)) rock_pos2 += 5.0f;
 				//srand(time(NULL));
-				random_pos2 = 10.0f - (rand() % 10) * 2; //change the position
+				random_pos2 = 10.0f - (rand() % 10) * 2;
 				if (random_pos == random_pos2) {
 					if (random_pos >= 0) random_pos2 = -6.0f;
 					else random_pos2 = 6.0f;
@@ -426,9 +451,7 @@ protected:
 			vkUnmapMemory(device, DS_R2.uniformBuffersMemory[0][currentImage]);
 
 			// For the boat
-			float rotx = 0.0f;
-			float roty = 90.0f;
-
+			//move the boat to the right
 			if (glfwGetKey(window, GLFW_KEY_D)) {
 				if (pos > -10.0f) {
 					pos -= boatMovingPar;
@@ -436,6 +459,7 @@ protected:
 					roty = 85.0f;
 				}
 			}
+			//move the boat to the left
 			if (glfwGetKey(window, GLFW_KEY_A)) {
 				if (pos < 10.0f) {
 					pos += boatMovingPar;
@@ -444,11 +468,13 @@ protected:
 				}
 			}
 
+			//make the boat stand still when both the keys are pressed
 			if ((glfwGetKey(window, GLFW_KEY_D)) && (glfwGetKey(window, GLFW_KEY_A))) {
 				rotx = 0.0f;
 				roty = 90.0f;
 			}
 
+			//boat movement
 			ubo.model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pos, -0.2f, -8.0f)),
 				glm::vec3(0.009f, 0.009f, 0.009f));
 			ubo.model = glm::rotate(ubo.model, glm::radians(roty),
@@ -457,8 +483,8 @@ protected:
 				glm::vec3(1.0f, 0.0f, 0.0f));
 
 			// CHECKS FOR COLLISIONS
-			// collision with rock 1
-			// from the left
+			// collision with rock 1 (no need to take in account the rotation since the little rock is very small and pretty much circular)
+			// from the left | make sure that the rock is on the same x level of the boat | here we make sure that the rock is on the same z level of the boat
 			if ((pos + 1.0f >= random_pos && random_pos + 1.5f >= pos) && (-8.0f + 5.0f >= (40.0f + rock_pos * 4.0f) && (40.0f + rock_pos * 4.0f) + 2.5f >= -8.0f)) {
 				gameOver = true;
 			}
@@ -467,10 +493,11 @@ protected:
 				gameOver = true;
 			}
 
-			// collision with rock 2
+			// collision with rock 2 
+			// since the big rock is like a rectangle we have to take in account its roatation to make a more accurate prediction of the collision
 			float cosFactor = cos(glm::radians(randomRotYBigRock));
 			if (cosFactor < 0) cosFactor *= -1;
-			cosFactor = glm::max(cosFactor, 0.650f);
+			cosFactor = glm::max(cosFactor, 0.650f); // the rock is thick so a small number would be too low no matter the rotation (even thought it is vertical we cannot multiply for 0 of course!)
 			float sinFactor = sin(glm::radians(randomRotYBigRock));
 			if (sinFactor < 0) sinFactor *= -1;
 
@@ -483,8 +510,10 @@ protected:
 				gameOver = true;
 			}
 
+			//parameters are restored 
 			rotx = 0.0f;
 			roty = 90.0f;
+
 			vkMapMemory(device, DS_Boat.uniformBuffersMemory[0][currentImage], 0,
 				sizeof(ubo), 0, &data);
 			memcpy(data, &ubo, sizeof(ubo));
@@ -492,6 +521,7 @@ protected:
 
 			// For the sea
 			if (sea_pos * 4.0f > 0.0f) {
+				//at some point the sea will move faster that the rocks in order to make the sea seem rough
 				sea_pos -= (0.0015f) + speeder;
 			}
 			else {
@@ -504,7 +534,7 @@ protected:
 			memcpy(data, &ubo, sizeof(ubo));
 			vkUnmapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage]);
 
-			// GAME RESET
+			// GAME RESET: all parameters restored
 			if (glfwGetKey(window, GLFW_KEY_ENTER)) {
 				randomRotYBigRock = 0.0f;
 				randomRotYLittleRock = 0.0f;

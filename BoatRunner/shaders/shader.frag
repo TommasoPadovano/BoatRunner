@@ -3,8 +3,8 @@
 layout(set= 0, binding = 0) uniform globalUniformBufferObject {
 	mat4 view;
 	mat4 proj;
-	vec3 lightDir0; 
-	vec3 lightColor0; 
+	vec3 lightDir; 
+	vec3 lightColor; 
 
 	vec3 AmbColor;	
 	vec3 TopColor;	
@@ -23,7 +23,7 @@ layout(location = 0) out vec4 outColor;
 vec3 Case2_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca) {
 	// Lambert Diffuse + Hemispheric
 	// No Specular
-	// One directional light (lightDir0 and lightColor0)
+	// One directional light (lightDir and lightColor)
 	// Hemispheric light oriented along the y-axis
 	//
 	// Parameters are:
@@ -35,12 +35,12 @@ vec3 Case2_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca) {
 
 	vec3 HemiDir = vec3(0.0f, 1.0f, 0.0f);
 	
-	vec3 lambert = Cd * max(dot(gubo.lightDir0, N), 0.0f);
+	vec3 lambert = Cd * max(dot(gubo.lightDir, N), 0.0f);
 	
-	vec3 first_term = lambert * gubo.lightColor0;
+	vec3 first_term = lambert * gubo.lightColor;
 	
-	vec3 x = ((dot(N, gubo.lightDir0) + 1)* gubo.TopColor)/2;
-	vec3 y = ((1 - dot(N, gubo.lightDir0))* gubo.AmbColor)/2; 
+	vec3 x = ((dot(N, gubo.lightDir) + 1)* gubo.TopColor)/2;
+	vec3 y = ((1 - dot(N, gubo.lightDir))* gubo.AmbColor)/2; 
 	vec3 second_term = (x + y) * Ca;
 	
 	return (first_term + second_term);
