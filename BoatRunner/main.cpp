@@ -362,7 +362,7 @@ protected:
 
 		gubo.lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
 		gubo.lightDir = glm::vec3(0.0f, 1.0f - light_pos, -2.0f + light_pos);
-		gubo.AmbColor = glm::vec3(0.3f, 0.3f, 0.3f);
+		gubo.AmbColor = glm::vec3(0.9f, 0.9f, 0.9f);
 		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); //rgb
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
 
