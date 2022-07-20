@@ -38,8 +38,8 @@ vec3 Lambert_Hemispheric_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float gamma) {
 	
 	vec3 first_term = lambert * gubo.lightColor;
 	
-	vec3 x = ((dot(N, gubo.lightDir) + 1)* gubo.TopColor)/2;
-	vec3 y = ((1 - dot(N, gubo.lightDir))* gubo.AmbColor)/2; 
+	vec3 x = ((dot(N, HemiDir) + 1)* gubo.TopColor)/2;
+	vec3 y = ((1 - dot(N, HemiDir))* gubo.AmbColor)/2; 
 	vec3 second_term = (x + y) * Ca;
 
 	vec3 H1 = normalize(gubo.lightDir + V);
