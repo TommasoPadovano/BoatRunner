@@ -22,7 +22,6 @@ layout(location = 0) out vec4 outColor;
 
 vec3 Lambert_Hemispheric_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float gamma) {
 	// Lambert Diffuse + Hemispheric
-	// No Specular
 	// One directional light (lightDir and lightColor)
 	// Hemispheric light oriented along the y-axis
 	//
@@ -50,6 +49,33 @@ vec3 Lambert_Hemispheric_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float gamma) {
 
 	
 	return (first_term + blinn + second_term);
+}
+
+vec3 Lambert_Ambient_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float gamma) {
+	// Lambert Diffuse + Ambient
+	// One directional light (lightDir and lightColor)
+	// Hemispheric light oriented along the y-axis
+	//
+	// Parameters are:
+	//
+	// vec3 N : normal vector
+	// vec3 V : view direction
+	// vec3 Cd : main color (diffuse color)
+	// vec3 Ca : ambient color
+
+	vec3 HemiDir = vec3(0.0f, 1.0f, 0.0f);
+	
+	vec3 lambert = Cd * max(dot(gubo.lightDir, N), 0.0f);
+	
+	vec3 first_term = lambert * gubo.lightColor;
+
+	vec3 H1 = normalize(gubo.lightDir + V);
+	float clamped = clamp(dot(N, H1), 0, 1);
+	float powered = pow(clamped, gamma);
+	vec3 blinn = Cd * powered;
+
+	
+	return (first_term + blinn + (gubo.AmbColor * Ca));
 }
 
 vec3 OrenNayar_Ambient_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float sigma) {
@@ -93,7 +119,8 @@ void main() {
 	vec3 DifCol = texture(texSampler, fragTexCoord).rgb;
 
 	//vec3 CompColor = Lambert_Hemispheric_Color(Norm, EyeDir, DifCol, DifCol, 200.0f);
-	vec3 CompColor = OrenNayar_Ambient_Color(Norm, EyeDir, DifCol/10, DifCol, 0.1f);
-	
+	vec3 CompColor = OrenNayar_Ambient_Color(Norm, EyeDir, DifCol/10, DifCol, 0.03f);
+	//vec3 CompColor = Lambert_Ambient_Color(Norm, EyeDir, DifCol, DifCol, 200.0f);
+
 	outColor = vec4(CompColor, 1.0f);
 }

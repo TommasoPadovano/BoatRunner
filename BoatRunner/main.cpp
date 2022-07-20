@@ -42,12 +42,9 @@ protected:
 	float speederLimit = 0.1f; //limit to the game speed
 	float speederIncrement = 0.000000002; // a costant to associate with time increasing in order to progressively increement the game speed
 
-	float boatMovingPar = 0.025f; //the speed at which the boat moves
+	float boatMovingPar = 0.025f; //the speed at which the boat moves on the x-axis
 	float rotx = 0.0f; //rotation parameter for the boat on the x-axis 
 	float roty = 90.0f; //rotation parameter for the boat on the y-axis 
-
-	float time_elapsed = 0.0f; //non è mai usato -> chiedere a Tommaso
-	float vel = 1.0f; //non è mai usato -> chiedere a Tommaso
 
 	bool gameOver = false; //boolean variable to detect the gameover 
 	bool gameStarted = false; //boolean variable to handle the beginning of the game
@@ -58,7 +55,7 @@ protected:
 	//Those will be used in P1 to handle the game's main scene
 	DescriptorSetLayout DSLglobal;
 	DescriptorSetLayout DSLobj;
-	//Those will be used in P2 to handle the game's screens of gameover and beginning of the game
+	//Those will be used in P2 to handle the game's screens of gameover and newgame
 	DescriptorSetLayout DSL_globalText; 
 	DescriptorSetLayout DSL_objText;
 
@@ -69,9 +66,6 @@ protected:
 	
 
 	// Models, textures and Descriptors (values assigned to the uniforms)
-
-	//NOTE: if we want more rocks to appear in the screen we need to
-	//create multiple DescriptorSet and init them all
 	
 	// Little rock
 	Model M_Rock1;
@@ -113,7 +107,7 @@ protected:
 		initialBackgroundColor = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 		// Descriptor pool sizes
-		uniformBlocksInPool = 6;
+		uniformBlocksInPool = 5;
 		texturesInPool = 6;
 		setsInPool = 7;
 	}
@@ -363,7 +357,7 @@ protected:
 		gubo.lightColor = glm::vec3(0.8f, 0.8f, 0.8f);
 		gubo.lightDir = glm::vec3(0.0f, 1.0f - light_pos, -2.0f + light_pos);
 		gubo.AmbColor = glm::vec3(0.9f, 0.9f, 0.9f);
-		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); //rgb
+		gubo.TopColor = glm::vec3(0.3f, 0.3f, 0.3f); 
 		gubo.eyePos = glm::vec3(0.0f, 20.0f, -25.0f);
 
 		//the light direction moves as the time passes to make the scene more realistic
@@ -401,7 +395,7 @@ protected:
 
 		if (gameStarted == true) {
 			// Here is where you actually update your uniforms
-			// For rock 1
+			// For little rock
 			if (40.0f + rock_pos * 4.0f > -20.0f) {
 				//rock already on the scene is moving
 				rock_pos -= 0.0025f + speeder;
@@ -423,7 +417,7 @@ protected:
 			memcpy(data, &ubo, sizeof(ubo));
 			vkUnmapMemory(device, DS_R1.uniformBuffersMemory[0][currentImage]);
 
-			// For rock 2
+			// For big rock
 			if (30.0f + rock_pos2 * 4.0f > -20.0f) {
 				rock_pos2 -= 0.0025f + speeder;
 				if (speeder < speederLimit) speeder += time * speederIncrement;
@@ -437,8 +431,8 @@ protected:
 				//srand(time(NULL));
 				random_pos2 = 10.0f - (rand() % 10) * 2;
 				if (random_pos == random_pos2) {
-					if (random_pos >= 0) random_pos2 = -6.0f;
-					else random_pos2 = 6.0f;
+					if (random_pos >= 0) random_pos2 = -8.0f;
+					else random_pos2 = 8.0f;
 				}
 			}
 
@@ -535,7 +529,7 @@ protected:
 			vkUnmapMemory(device, DS_Sea.uniformBuffersMemory[0][currentImage]);
 
 			// GAME RESET: all parameters restored
-			if (glfwGetKey(window, GLFW_KEY_ENTER)) {
+			if (glfwGetKey(window, GLFW_KEY_ENTER) && gameOver == true) {
 				randomRotYBigRock = 0.0f;
 				randomRotYLittleRock = 0.0f;
 				randomTranslationYLittleRock = -1.5f;
@@ -548,8 +542,6 @@ protected:
 				random_pos = -6.0f;
 				light_pos = 0.0f;
 				speeder = 0.0f;
-				time_elapsed = 0.0f;
-				vel = 1.0f;
 				gameOver = false;
 			}
 		}
