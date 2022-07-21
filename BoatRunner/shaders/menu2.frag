@@ -19,11 +19,11 @@ void main() {
 	vec3 V = normalize(fragViewDir);
 	
 	// Lambert diffuse
-	vec3 diffuse  = diffColor * max(dot(N,L), 0.0f) * 1.5;
+	//vec3 diffuse  = diffColor * max(dot(N,L), 0.0f) * 1.5;
 	// Phong specular
-	vec3 specular = specColor * pow(max(dot(R,V), 0.0f), specPower);
+	//vec3 specular = specColor * pow(max(dot(R,V), 0.0f), specPower);
 	// Hemispheric ambient
-	vec3 ambient  = vec3(0.3f,0.3f, 0.3f) * diffColor;
+	vec3 ambient  = vec3(0.7f,0.7f, 0.7f) * diffColor;
 	
-	outColor = vec4(clamp(ambient + diffuse + specular, vec3(0.0f), vec3(1.0f)), 1.0f);
+	outColor = vec4(clamp(ambient, vec3(0.0f), vec3(1.0f)), 1.0f);
 }

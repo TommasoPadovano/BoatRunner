@@ -81,7 +81,7 @@ vec3 Lambert_Ambient_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float gamma) {
 vec3 OrenNayar_Ambient_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float sigma) {
 	// Oren Nayar Diffuse + Ambient
 	// No Specular
-	// One directional light (lightDir0 and lightColor0)
+	// One directional light (lightDir and lightColor)
 	//
 	// Parameters are:
 	//
