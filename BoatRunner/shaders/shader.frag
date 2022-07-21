@@ -113,13 +113,11 @@ vec3 OrenNayar_Ambient_Color(vec3 N, vec3 V, vec3 Cd, vec3 Ca, float sigma) {
 void main() {
 	vec3 Norm = normalize(fragNorm);
 	vec3 EyeDir = normalize(gubo.eyePos.xyz - fragViewDir);
-
-	//float AmbFact = 0.25;
 	
 	vec3 DifCol = texture(texSampler, fragTexCoord).rgb;
 
-	//vec3 CompColor = Lambert_Hemispheric_Color(Norm, EyeDir, DifCol, DifCol, 200.0f);
-	vec3 CompColor = OrenNayar_Ambient_Color(Norm, EyeDir, DifCol/10, DifCol, 0.03f);
+	vec3 CompColor = Lambert_Hemispheric_Color(Norm, EyeDir, DifCol, DifCol, 200.0f);
+	//vec3 CompColor = OrenNayar_Ambient_Color(Norm, EyeDir, DifCol/10, DifCol, 0.03f);
 	//vec3 CompColor = Lambert_Ambient_Color(Norm, EyeDir, DifCol, DifCol, 200.0f);
 
 	outColor = vec4(CompColor, 1.0f);
